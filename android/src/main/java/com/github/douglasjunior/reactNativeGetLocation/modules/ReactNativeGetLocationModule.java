@@ -27,8 +27,10 @@ package com.github.douglasjunior.reactNativeGetLocation.modules;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationProvider;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import androidx.annotation.RequiresPermission;
@@ -42,6 +44,7 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.github.douglasjunior.reactNativeGetLocation.util.GetLocation;
 import com.github.douglasjunior.reactNativeGetLocation.util.SettingsUtil;
+import android.os.SystemClock;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -52,11 +55,15 @@ public class ReactNativeGetLocationModule extends ReactContextBaseJavaModule {
 
     private LocationManager locationManager;
     private GetLocation getLocation;
+    Context ctx;
+    String PROVIDER;
 
-    public ReactNativeGetLocationModule(ReactApplicationContext reactContext) {
-        super(reactContext);
+    public ReactNativeGetLocationModule(ReactApplicationContext ctx) {
+        super(ctx);
+        this.ctx = ctx;
+
         try {
-            locationManager = (LocationManager) reactContext.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) ctx.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -115,5 +122,48 @@ public class ReactNativeGetLocationModule extends ReactContextBaseJavaModule {
         getLocation = new GetLocation(locationManager);
         getLocation.get(options, promise);
     }
+
+    @ReactMethod
+        public void setCurrentPosition(double latitude, double longitude) {
+            locationManager.addTestProvider (LocationManager.GPS_PROVIDER,
+                       "requiresNetwork" == "",
+                       "requiresSatellite" == "",
+                       "requiresCell" == "",
+                       "hasMonetaryCost" == "",
+                       "supportsAltitude" == "",
+                       "supportsSpeed" == "",
+                       "supportsBearing" == "",
+                       android.location.Criteria.POWER_LOW,
+                       android.location.Criteria.ACCURACY_FINE);
+
+               Location newLocation = new Location(LocationManager.GPS_PROVIDER);
+
+               newLocation.setLatitude(latitude);
+               newLocation.setLongitude(longitude);
+               newLocation.setAltitude(3F);
+               newLocation.setSpeed(0.01F);
+               newLocation.setBearing(1F);
+               newLocation.setAccuracy(3F);
+
+               newLocation.setTime(System.currentTimeMillis());
+               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                   newLocation.setBearingAccuracyDegrees(0.1F);
+               }
+               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                   newLocation.setVerticalAccuracyMeters(0.1F);
+               }
+               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                   newLocation.setSpeedAccuracyMetersPerSecond(0.01F);
+               }
+               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                  newLocation.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
+              }
+               locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
+
+               locationManager.setTestProviderStatus(LocationManager.GPS_PROVIDER,
+                       LocationProvider.AVAILABLE,
+                       null,System.currentTimeMillis());
+               locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, newLocation);
+       }
 
 }

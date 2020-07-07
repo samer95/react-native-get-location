@@ -60,6 +60,9 @@ async function requestAndroidPermission(enableHighAccuracy = false) {
 }
 
 export default {
+  async setCurrentPosition(latitude, longitude) {
+    await ReactNativeGetLocation.setCurrentPosition(latitude, longitude)
+  },
   async getCurrentPosition(options = {
     enableHighAccuracy: false,
     timeout: 0,
