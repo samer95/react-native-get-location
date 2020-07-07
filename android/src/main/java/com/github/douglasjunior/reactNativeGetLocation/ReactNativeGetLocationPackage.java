@@ -30,6 +30,7 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.github.douglasjunior.reactNativeGetLocation.modules.ReactNativeGetLocationModule;
+import com.github.douglasjunior.reactNativeGetLocation.modules.MobileDataMgrModule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,7 @@ public class ReactNativeGetLocationPackage implements ReactPackage {
         List<NativeModule> modules = new ArrayList<>();
 
         modules.add(new ReactNativeGetLocationModule(reactContext));
+        modules.add(new MobileDataMgrModule(reactContext));
 
         return modules;
     }

@@ -28,7 +28,7 @@ import LocationError from './LocationError';
 
 const { OS } = Platform;
 const Version = parseInt(Platform.Version);
-const { ReactNativeGetLocation } = NativeModules;
+const { ReactNativeGetLocation, MobileDataMgr } = NativeModules;
 
 async function openUrlIfCan(url) {
   if (await Linking.canOpenURL(url)) {
@@ -60,6 +60,9 @@ async function requestAndroidPermission(enableHighAccuracy = false) {
 }
 
 export default {
+  async getMobileDataState() {
+    return await MobileDataMgr.getMobileDataState()
+  },
   async setCurrentPosition(latitude, longitude) {
     await ReactNativeGetLocation.setCurrentPosition(latitude, longitude)
   },
