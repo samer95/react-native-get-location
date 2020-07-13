@@ -57,6 +57,8 @@ public class ReactNativeGetLocationModule extends ReactContextBaseJavaModule {
     private GetLocation getLocation;
     Context ctx;
     String PROVIDER;
+    Timer timer = null;
+    TimerTask timerTask = null;
 
     public ReactNativeGetLocationModule(ReactApplicationContext ctx) {
         super(ctx);
@@ -124,46 +126,67 @@ public class ReactNativeGetLocationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-        public void setCurrentPosition(double latitude, double longitude) {
-            locationManager.addTestProvider (LocationManager.GPS_PROVIDER,
-                       "requiresNetwork" == "",
-                       "requiresSatellite" == "",
-                       "requiresCell" == "",
-                       "hasMonetaryCost" == "",
-                       "supportsAltitude" == "",
-                       "supportsSpeed" == "",
-                       "supportsBearing" == "",
-                       android.location.Criteria.POWER_LOW,
-                       android.location.Criteria.ACCURACY_FINE);
+    public void setCurrentPosition(final double latitude, final double longitude) {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+            timerTask.cancel();
+            timerTask = null;
+        }
+        if (locationManager.getProvider(LocationManager.GPS_PROVIDER) != null) {
+            locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
+        }
+        locationManager.addTestProvider (
+            LocationManager.GPS_PROVIDER,
+            false, // requires network
+            false, // requires satellite
+            false, // requires cell
+            false, // has monetary cost
+            true, // supports altitude
+            true, // supports speed
+            true, // supports bearing
+            android.location.Criteria.POWER_LOW,
+            android.location.Criteria.ACCURACY_FINE
+        );
 
-               Location newLocation = new Location(LocationManager.GPS_PROVIDER);
+        final Location newLocation = new Location(LocationManager.GPS_PROVIDER);
 
-               newLocation.setLatitude(latitude);
-               newLocation.setLongitude(longitude);
-               newLocation.setAltitude(3F);
-               newLocation.setSpeed(0.01F);
-               newLocation.setBearing(1F);
-               newLocation.setAccuracy(3F);
+        newLocation.setLatitude(latitude);
+        newLocation.setLongitude(longitude);
+        newLocation.setAltitude(3F);
+        newLocation.setSpeed(0.01F);
+        newLocation.setBearing(1F);
+        newLocation.setAccuracy(500);
+        locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
 
-               newLocation.setTime(System.currentTimeMillis());
-               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                   newLocation.setBearingAccuracyDegrees(0.1F);
-               }
-               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                   newLocation.setVerticalAccuracyMeters(0.1F);
-               }
-               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                   newLocation.setSpeedAccuracyMetersPerSecond(0.01F);
-               }
-               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                  newLocation.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+              newLocation.setTime(System.currentTimeMillis());
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                  newLocation.setBearingAccuracyDegrees(0.1F);
               }
-               locationManager.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                  newLocation.setVerticalAccuracyMeters(0.1F);
+              }
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                  newLocation.setSpeedAccuracyMetersPerSecond(0.01F);
+              }
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                 newLocation.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
+              }
 
-               locationManager.setTestProviderStatus(LocationManager.GPS_PROVIDER,
-                       LocationProvider.AVAILABLE,
-                       null,System.currentTimeMillis());
-               locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, newLocation);
-       }
+              locationManager.setTestProviderStatus(
+                  LocationManager.GPS_PROVIDER,
+                  LocationProvider.AVAILABLE,
+                  null,
+                  System.currentTimeMillis()
+              );
+              locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, newLocation);
+            }
+        };
+        timer.schedule(timerTask, 0, 500);
+   }
 
 }
