@@ -189,4 +189,17 @@ public class ReactNativeGetLocationModule extends ReactContextBaseJavaModule {
         timer.schedule(timerTask, 0, 500);
    }
 
+    @ReactMethod
+    public void stopMockLocation() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+            timerTask.cancel();
+            timerTask = null;
+        }
+        if (locationManager.getProvider(LocationManager.GPS_PROVIDER) != null) {
+            locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
+        }
+    }
+
 }

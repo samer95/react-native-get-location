@@ -84,6 +84,10 @@ export default {
     }
   },
 
+  async stopMockLocation() {
+    await ReactNativeGetLocation.stopMockLocation()
+  },
+
   // Extra functions
 
   openAppSettings() {
