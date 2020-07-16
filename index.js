@@ -63,6 +63,9 @@ export default {
   async getMobileDataState() {
     return await MobileDataMgr.getMobileDataState()
   },
+  async setMobileDataState(mobileDataEnabled) {
+    await MobileDataMgr.setMobileDataState(mobileDataEnabled)
+  },
   async setCurrentPosition(latitude, longitude) {
     await ReactNativeGetLocation.setCurrentPosition(latitude, longitude)
   },

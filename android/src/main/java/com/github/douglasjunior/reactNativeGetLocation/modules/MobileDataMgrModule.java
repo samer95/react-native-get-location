@@ -3,6 +3,7 @@ package com.github.douglasjunior.reactNativeGetLocation.modules;
 import android.telephony.TelephonyManager;
 import java.lang.reflect.Method;
 import java.util.Objects;
+import java.lang.reflect.InvocationTargetException;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
@@ -41,5 +42,13 @@ public class MobileDataMgrModule extends ReactContextBaseJavaModule {
          promise.reject(ex);
       }
    }
+
+   @ReactMethod
+   public void setMobileDataState(boolean mobileDataEnabled, final Promise promise) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        TelephonyManager telephonyService = (TelephonyManager) ctx.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        Method setMobileDataEnabledMethod = Objects.requireNonNull(telephonyService).getClass().getDeclaredMethod("setDataEnabled", boolean.class);
+        setMobileDataEnabledMethod.invoke(telephonyService, mobileDataEnabled);
+        promise.resolve(true);
+  }
 
 }
