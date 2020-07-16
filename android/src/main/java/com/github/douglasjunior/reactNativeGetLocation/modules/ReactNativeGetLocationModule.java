@@ -186,7 +186,7 @@ public class ReactNativeGetLocationModule extends ReactContextBaseJavaModule {
               locationManager.setTestProviderLocation(LocationManager.GPS_PROVIDER, newLocation);
             }
         };
-        timer.schedule(timerTask, 0, 500);
+        timer.schedule(timerTask, 0, 200);
    }
 
     @ReactMethod
