@@ -133,9 +133,9 @@ public class ReactNativeGetLocationModule extends ReactContextBaseJavaModule {
             timerTask.cancel();
             timerTask = null;
         }
-        if (locationManager.getProvider(LocationManager.GPS_PROVIDER) != null) {
-            locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
-        }
+        // if (locationManager.getProvider(LocationManager.GPS_PROVIDER) != null) {
+        //     locationManager.removeTestProvider(LocationManager.GPS_PROVIDER);
+        // }
         locationManager.addTestProvider (
             LocationManager.GPS_PROVIDER,
             false, // requires network
